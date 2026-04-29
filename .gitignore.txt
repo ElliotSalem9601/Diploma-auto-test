@@ -1,0 +1,41 @@
+# Виртуальное окружение
+venv/
+env/
+ENV/
+
+# Файлы IDE (исключаем .vscode)
+.vscode/
+.idea/
+*.iml
+
+# Кэш Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Логи и отчеты
+*.log
+allure-results/
+allure-report/
+htmlcov/
+
+# Секреты и конфиги (важно!)
+.env
+.venv
+
+# Бинарные файлы (исключаем chromedriver.exe)
+*.exe
+*.msi
+*.dmg
+chromedriver
+geckodriver
+
+# Файлы ОС
+.DS_Store
+Thumbs.db
+desktop.ini

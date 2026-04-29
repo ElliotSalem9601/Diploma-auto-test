@@ -1,0 +1,24 @@
+diplom-auto-tests/
+├── .env.example          # Шаблон с переменными окружения
+├── .gitignore            # Исключаем мусорные папки и файлы с секретами
+├── README.md             # Описание проекта и инструкции
+├── requirements.txt      # Зависимости
+├── pytest.ini            # Регистрация маркеров ui и api
+│
+├── config/
+│   └── settings.py       # Загрузка настроек из .env
+│
+├── pages/                # Page Object Model
+│   ├── __init__.py
+│   ├── base_page.py      # Базовый класс с драйвером и ожиданиями
+│   ├── login_page.py
+│   └── schedule_page.py  # Все методы для работы с расписанием и событиями
+│
+├── tests/
+│   ├── __init__.py
+│   ├── test_ui.py        # 5 UI-тестов
+│   └── test_api.py       # 5 API-тестов
+│
+└── utils/
+    ├── __init__.py
+    └── api_client.py     # Класс для запросов к API
