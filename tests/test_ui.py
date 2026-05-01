@@ -1,4 +1,3 @@
-# tests/test_ui.py (исправленная версия)
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
