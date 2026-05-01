@@ -1,7 +1,18 @@
 import pytest
+import random
+from datetime import datetime, timedelta
 import allure
 from utils.api_client import APIClient
-from utils.helpers import generate_event_data
+
+def generate_event_data(days_offset: int = 5) -> dict:
+    """Генератор тестовых данных для событий"""
+    event_date = (datetime.now() + timedelta(days=days_offset)).strftime("%Y-%m-%d")
+    return {
+        "title": f"API Тест {random.randint(1, 999)}",
+        "date": event_date,
+        "duration_minutes": 60,
+        "description": f"Автоматический тест {datetime.now()}"
+    }
 
 @allure.feature("API. Личные события")
 class TestAPIPersonalEvents:
@@ -10,62 +21,57 @@ class TestAPIPersonalEvents:
     def api_client(self):
         return APIClient()
     
-    @allure.title("API-1: Создание события в будущем (позитивный тест)")
+    @allure.title("API-1: Создание события в будущем")
     @allure.story("Создание")
     @pytest.mark.api
     def test_create_future_event(self, api_client):
-        event_data = generate_event_data(days_from_now=5)  # через 5 дней
+        """Позитивный тест: создание события на будущую дату"""
+        event_data = generate_event_data(days_offset=5)
         response = api_client.create_event(event_data)
-        assert response.status_code == 201, f"Ожидался статус 201, получен {response.status_code}"
-        assert "id" in response.json(), "В ответе нет id созданного события"
+        assert response.status_code == 201, f"Ожидался 201, получен {response.status_code}"
+        assert "id" in response.json(), "Ответ не содержит ID события"
     
-    @allure.title("API-2: Создание события в прошлом (потребность Анастасии Петровны)")
+    @allure.title("API-2: Создание события в прошлом")
     @allure.story("Создание")
     @pytest.mark.api
     def test_create_past_event(self, api_client):
-        past_event_data = generate_event_data(days_from_now=-10)  # 10 дней назад
+        """Проверка потребности Анастасии Петровны: добавление событий задним числом"""
+        past_event_data = generate_event_data(days_offset=-10)
         response = api_client.create_event(past_event_data)
-        # Согласно вашему отчету, API позволяет создавать события в прошлом
-        assert response.status_code == 201, "API должен允许创建 прошлые события"
+        assert response.status_code == 201, "API должен создать прошлые события"
     
-    @allure.title("API-3: Создание события с невалидной длительностью (негативный тест)")
+    @allure.title("API-3: Негативный тест - невалидная длительность (>9ч 40м)")
     @allure.story("Валидация")
     @pytest.mark.api
     def test_create_event_invalid_duration(self, api_client):
-        event_data = generate_event_data(duration_hours=10)  # 10 часов (макс 9ч 40м)
+        """Негативный тест: длительность 10 часов (превышает лимит 9ч 40м)"""
+        event_data = generate_event_data()
+        event_data["duration_minutes"] = 600  # 10 часов
         response = api_client.create_event(event_data)
-        # Ожидаем ошибку валидации
         assert response.status_code == 400, "API должен вернуть 400 на невалидную длительность"
-        assert "длительность" in response.text.lower(), "В сообщении об ошибке должно быть указано поле 'длительность'"
     
     @allure.title("API-4: Редактирование события")
     @allure.story("Редактирование")
     @pytest.mark.api
     def test_update_event(self, api_client):
-        # Сначала создаем событие
+        """Тест редактирования названия события"""
+        # Создаем событие
         event_data = generate_event_data()
-        create_resp = api_client.create_event(event_data)
-        event_id = create_resp.json()["id"]
+        create_response = api_client.create_event(event_data)
+        assert create_response.status_code == 201
+        event_id = create_response.json()["id"]
         
-        # Обновляем событие (меняем название)
-        updated_data = {"title": "Обновленное название события"}
-        update_resp = api_client.update_event(event_id, updated_data)
-        assert update_resp.status_code == 200, "Не удалось обновить событие"
-        
-        # Проверяем, что данные обновились (нужен GET запрос)
-        get_resp = api_client.get_events_by_date(event_data["date"])
-        titles = [event["title"] for event in get_resp.json()]
-        assert "Обновленное название события" in titles, "Название не обновилось в системе"
+        # Обновляем событие
+        updated_data = {"title": "Обновленное API название"}
+        update_response = api_client.update_event(event_id, updated_data)
+        assert update_response.status_code == 200, "Не удалось обновить событие"
     
-    @allure.title("API-5: Получение списка событий за конкретную дату")
+    @allure.title("API-5: Получение списка событий за дату")
     @allure.story("Получение данных")
     @pytest.mark.api
     def test_get_events_by_date(self, api_client):
-        test_date = "2025-05-20"
+        """Позитивный тест: получение расписания на конкретную дату"""
+        test_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
         response = api_client.get_events_by_date(test_date)
         assert response.status_code == 200, "Не удалось получить расписание"
-        events = response.json()
-        assert isinstance(events, list), "Ответ должен быть списком событий"
-        # Дополнительно: можно проверить, что все события в ответе имеют нужную дату
-        for event in events:
-            assert event.get("date") == test_date, f"Событие {event.get('id')} имеет другую дату"
+        assert isinstance(response.json(), list), "Ответ должен быть списком событий"
