@@ -2,50 +2,68 @@ import requests
 import allure
 from config.settings import settings
 
-
 class APIClient:
     def __init__(self):
-        self.base_url = settings.BASE_URL
+        self.base_url = settings.API_BASE_URL
+        self.cookies = {
+            "token_global": settings.API_TOKEN
+        }
         self.headers = {
-            "Authorization": f"Bearer {settings.API_TOKEN}",
             "Content-Type": "application/json"
         }
         self.session = requests.Session()
+        self.session.cookies.update(self.cookies)
         self.session.headers.update(self.headers)
-
-    @allure.step("API: Создать событие")
+    
+    @allure.step("API: Создать личное событие")
     def create_event(self, data: dict) -> requests.Response:
-        """POST /api/events - создание нового события"""
-        response = self.session.post(
-            f"{self.base_url}/api/events",
-            json=data
-        )
-        allure.attach(response.text, "Response", allure.attachment_type.JSON)
+        """POST /v2/schedule/createPersonal - создание события"""
+        url = f"{self.base_url}/v2/schedule/createPersonal"
+        
+        
+        payload = {
+            "backgroundColor": data.get("backgroundColor", "#FFF7C7"),
+            "color": data.get("color", "#FAC641"),
+            "description": data.get("description", ""),
+            "title": data["title"],
+            "startAt": data["startAt"],
+            "endAt": data["endAt"]
+        }
+        
+        response = self.session.post(url, json=payload)
         return response
-
-    @allure.step("API: Получить события за дату {date}")
-    def get_events_by_date(self, date: str) -> requests.Response:
-        """GET /api/schedule - получение списка событий"""
-        response = self.session.get(
-            f"{self.base_url}/api/schedule",
-            params={"date": date}
-        )
+    
+    @allure.step("API: Получить события за период")
+    def get_events(self, from_date: str, till_date: str) -> requests.Response:
+        """POST /v2/schedule/events - получение списка событий"""
+        url = f"{self.base_url}/v2/schedule/events"
+        payload = {
+            "from": from_date,
+            "till": till_date,
+            "onlyTypes": []
+        }
+        response = self.session.post(url, json=payload)
         return response
-
-    @allure.step("API: Обновить событие {event_id}")
-    def update_event(self, event_id: str, data: dict) -> requests.Response:
-        """PATCH /api/events/{id} - частичное обновление события"""
-        # Пробуем PATCH (частичное обновление) вместо PUT
-        response = self.session.patch(
-            f"{self.base_url}/api/events/{event_id}",
-            json=data
-        )
+    
+    @allure.step("API: Обновить событие")
+    def update_event(self, event_id: str, old_start_at: str, data: dict) -> requests.Response:
+        """POST /v2/schedule/updatePersonal - обновление события"""
+        url = f"{self.base_url}/v2/schedule/updatePersonal"
+        payload = {
+            "id": event_id,
+            "oldStartAt": old_start_at,
+            **data
+        }
+        response = self.session.post(url, json=payload)
         return response
-
-    @allure.step("API: Удалить событие {event_id}")
-    def delete_event(self, event_id: str) -> requests.Response:
-        """DELETE /api/events/{id} - удаление события"""
-        response = self.session.delete(
-            f"{self.base_url}/api/events/{event_id}"
-        )
+    
+    @allure.step("API: Удалить событие")
+    def delete_event(self, event_id: str, start_at: str) -> requests.Response:
+        """POST /v2/schedule/removePersonal - удаление события"""
+        url = f"{self.base_url}/v2/schedule/removePersonal"
+        payload = {
+            "id": event_id,
+            "startAt": start_at
+        }
+        response = self.session.post(url, json=payload)
         return response
