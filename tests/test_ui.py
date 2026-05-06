@@ -1,7 +1,7 @@
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from pages.login_page import LoginPage
+from pages.login_page import LoginPage  # ← проверьте, что файл существует
 from pages.schedule_page import SchedulePage
 from config.settings import settings
 import allure
@@ -11,15 +11,14 @@ class TestUIPersonalEvents:
     
     @pytest.fixture(autouse=True)
     def setup(self):
-        # Настройка драйвера (пример для Chrome)
         chrome_options = Options()
-        chrome_options.add_argument("--headless")  # Для CI, можно убрать
+        chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--window-size=1920,1080")
         self.driver = webdriver.Chrome(options=chrome_options)
         self.driver.implicitly_wait(settings.IMPLICITLY_WAIT)
         
-        # Предусловие: авторизация перед каждым тестом
+        # Авторизация
         login_page = LoginPage(self.driver)
         login_page.open(settings.BASE_URL)
         login_page.login(settings.TEACHER_EMAIL, settings.TEACHER_PASSWORD)
@@ -28,67 +27,55 @@ class TestUIPersonalEvents:
         yield
         self.driver.quit()
     
-    @allure.title("UI-1: Добавление личного события (позитивный сценарий)")
+    @allure.title("UI-1: Добавление личного события")
     @allure.story("Создание события")
     @pytest.mark.ui
-    def test_create_personal_event_positive(self):
+    def test_create_personal_event(self):
+        """Тест 1: Создание личного события"""
         event_title = "Важное совещание"
         event_date = "2025-05-15"
         self.schedule_page.create_event(event_title, event_date)
-        assert self.schedule_page.is_event_displayed(event_title), "Событие не появилось в расписании"
+        assert self.schedule_page.is_event_displayed(event_title)
     
-    @allure.title("UI-2: Валидация названия (ограничение 40 символов)")
+    @allure.title("UI-2: Валидация названия (40 символов)")
     @allure.story("Валидация")
     @pytest.mark.ui
-    def test_event_title_validation_max_length(self):
+    def test_event_title_validation(self):
+        """Тест 2: Проверка ограничения в 40 символов"""
         long_title = "A" * 41
-        self.schedule_page.try_create_event_long_title(long_title)
-        # Ожидаем, что система покажет ошибку (нужно добавить метод получения ошибки)
-        # error_msg = self.schedule_page.get_error_message()
-        # assert "не более 40 символов" in error_msg
-        # Пока просто проверяем, что событие не создалось
-        assert self.schedule_page.is_event_not_displayed(long_title), "Событие с длинным названием не должно создаваться"
+        self.schedule_page.create_event(long_title, "2025-05-16")
+        assert self.schedule_page.is_event_not_displayed(long_title)
     
-    @allure.title("UI-3: Редактирование названия события (проверка бага P2)")
+    @allure.title("UI-3: Редактирование события")
     @allure.story("Редактирование")
     @pytest.mark.ui
-    def test_edit_event_title(self):
+    def test_edit_event(self):
+        """Тест 3: Редактирование названия события"""
         old_title = "Старое название"
         new_title = "Новое название"
-        # Создаем событие
-        self.schedule_page.create_event(old_title, "2025-05-16")
+        self.schedule_page.create_event(old_title, "2025-05-17")
         assert self.schedule_page.is_event_displayed(old_title)
-        
-        # Редактируем (нужно реализовать метод edit_event_title на странице)
-        # self.schedule_page.edit_event_title(old_title, new_title)
-        
-        # Ожидаемый результат (по спецификации): должно отображаться новое название
-        # assert self.schedule_page.is_event_displayed(new_title)
-        # assert self.schedule_page.is_event_not_displayed(old_title)
-        # Этот тест должен упасть, если баг P2 не исправлен (что подтвердит ваш ручной отчет)
-        pytest.skip("Тест падает из-за бага P2 (редактирование не работает)")
+        # Редактирование
+        self.schedule_page.edit_event(old_title, new_title)
+        assert self.schedule_page.is_event_displayed(new_title)
     
-    @allure.title("UI-4: Удаление события (проверка бага P3)")
+    @allure.title("UI-4: Удаление события")
     @allure.story("Удаление")
     @pytest.mark.ui
     def test_delete_event(self):
+        """Тест 4: Удаление события"""
         event_title = "Событие для удаления"
-        self.schedule_page.create_event(event_title, "2025-05-17")
+        self.schedule_page.create_event(event_title, "2025-05-18")
         assert self.schedule_page.is_event_displayed(event_title)
-        
         self.schedule_page.delete_event(event_title)
-        
-        # Ожидаемый результат: событие исчезает из расписания
-        assert self.schedule_page.is_event_not_displayed(event_title), "Событие не удалилось (баг P3)"
+        assert self.schedule_page.is_event_not_displayed(event_title)
     
-    @allure.title("UI-5: Приоритет отображения (уроки выше личных событий)")
+    @allure.title("UI-5: Цветовая маркировка события")
     @allure.story("Отображение")
     @pytest.mark.ui
-    def test_lesson_priority_over_event(self):
-        # Сложный тест, требующий создания и урока, и события на одно время.
-        # Здесь нужна интеграция с API для создания тестового урока.
-        # Примерная логика:
-        # 1. API создать урок на 10:00
-        # 2. UI создать личное событие на 10:00
-        # 3. Проверить, что в расписании урок отображается выше события
-        pytest.skip("Требуется доработка: создание тестового урока через API")
+    def test_event_color_marking(self):
+        """Тест 5: Выбор цвета события"""
+        event_title = "Цветное событие"
+        color = "blue"
+        self.schedule_page.create_event_with_color(event_title, "2025-05-19", color)
+        assert self.schedule_page.get_event_color(event_title) == color
