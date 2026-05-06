@@ -2,21 +2,20 @@
 venv/
 env/
 ENV/
+.venv/
 
-# Файлы IDE (исключаем .vscode)
+# IDE
 .vscode/
 .idea/
 *.iml
 
-# Кэш Python
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache/
 .tox/
 .mypy_cache/
-.dmypy.json
-dmypy.json
 
 # Логи и отчеты
 *.log
@@ -24,18 +23,17 @@ allure-results/
 allure-report/
 htmlcov/
 
-# Секреты и конфиги (важно!)
+# Секреты и локальные настройки
 .env
-.venv
 
-# Бинарные файлы (исключаем chromedriver.exe)
+# Драйверы и бинарные файлы
 *.exe
 *.msi
 *.dmg
 chromedriver
 geckodriver
 
-# Файлы ОС
+# ОС
 .DS_Store
 Thumbs.db
 desktop.ini
