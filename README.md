@@ -1,5 +1,7 @@
-# Diploma-auto-test
+Автотесты для дипломной работы по функционалу "Личные события" на вкладке
+"Расписание" портала преподавателя Skyeng.
 
+<<<<<<< HEAD
 Автотесты для дипломной работы по функционалу "Личные события" на вкладке
 "Расписание" портала преподавателя Skyeng.
 
@@ -25,10 +27,28 @@ git clone https://github.com/ElliotSalem9601/Diploma-auto-test.git
 cd Diploma-auto-test
 ```
 
+=======
+Ссылка на финальный проект по ручному тестированию https://elliotsalem9601.yonote.ru/share/c5147b1d-c7f2-4428-8bde-53912e961e8b
+Тестирование функционала "Личные события"
+
+Технологии
+Python 3.9+
+Selenium + Page Object Model
+Requests
+Pytest
+Allure
+Flake8
+Установка
+Склонируйте репозиторий и перейдите в папку проекта:
+
+git clone https://github.com/ElliotSalem9601/Diploma-auto-test.git
+cd Diploma-auto-test
+>>>>>>> b9ba91a7adc87fd429b6f535d92adda2be2ef6a6
 Создайте и активируйте виртуальное окружение.
 
 Windows:
 
+<<<<<<< HEAD
 ```bash
 python -m venv venv
 venv\Scripts\activate
@@ -55,11 +75,29 @@ pip install -r requirements.txt
 Пример заполнения:
 
 ```env
+=======
+python -m venv venv
+venv\Scripts\activate
+macOS/Linux:
+
+python3 -m venv venv
+source venv/bin/activate
+Установите зависимости:
+
+pip install -r requirements.txt
+Переменные окружения
+Создайте в корне проекта файл .env. Важно: файл должен называться именно
+.env, без расширений .ini, .txt и других суффиксов.
+
+Пример заполнения:
+
+>>>>>>> b9ba91a7adc87fd429b6f535d92adda2be2ef6a6
 API_BASE_URL=https://api-teachers.skyeng.ru
 BASE_URL=https://teachers.skyeng.ru/schedule
 EMAIL=your_email@example.com
 PASSWORD=your_password
 API_TOKEN=your_api_token
+<<<<<<< HEAD
 ```
 
 `EMAIL` и `PASSWORD` нужны для UI-тестов. `API_TOKEN` нужен для API-тестов:
@@ -108,9 +146,38 @@ flake8
 ## Структура проекта
 
 ```text
+=======
+EMAIL и PASSWORD нужны для UI-тестов. API_TOKEN нужен для API-тестов:
+он передается и в cookie token_global, и в заголовке Authorization.
+
+Запуск тестов
+Запустить все тесты:
+
+pytest
+Запустить только API-тесты:
+
+pytest -m api
+Запустить только UI-тесты:
+
+pytest -m ui
+Запустить тесты с сохранением результатов Allure:
+
+pytest --alluredir=allure-results
+Сформировать и открыть Allure-отчет:
+
+allure serve allure-results
+Проверка стиля
+Запуск flake8:
+
+flake8
+Структура проекта
+>>>>>>> b9ba91a7adc87fd429b6f535d92adda2be2ef6a6
 config/             настройки и загрузка .env
 pages/              Page Object Model для UI-тестов
 tests/test_api.py   API-тесты личных событий
 tests/test_ui.py    UI-тесты личных событий
 utils/api_client.py клиент для API-запросов
+<<<<<<< HEAD
 ```
+=======
+>>>>>>> b9ba91a7adc87fd429b6f535d92adda2be2ef6a6
