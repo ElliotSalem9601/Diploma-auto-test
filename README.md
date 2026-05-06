@@ -1,3 +1,5 @@
+# Diploma-auto-test
+
 Автотесты для дипломной работы по функционалу "Личные события" на вкладке
 "Расписание" портала преподавателя Skyeng.
 
@@ -21,6 +23,7 @@
 ```bash
 git clone https://github.com/ElliotSalem9601/Diploma-auto-test.git
 cd Diploma-auto-test
+```
 
 Создайте и активируйте виртуальное окружение.
 
@@ -52,29 +55,11 @@ pip install -r requirements.txt
 Пример заполнения:
 
 ```env
-=======
-python -m venv venv
-venv\Scripts\activate
-macOS/Linux:
-
-python3 -m venv venv
-source venv/bin/activate
-Установите зависимости:
-
-pip install -r requirements.txt
-Переменные окружения
-Создайте в корне проекта файл .env. Важно: файл должен называться именно
-.env, без расширений .ini, .txt и других суффиксов.
-
-Пример заполнения:
-
->>>>>>> b9ba91a7adc87fd429b6f535d92adda2be2ef6a6
 API_BASE_URL=https://api-teachers.skyeng.ru
 BASE_URL=https://teachers.skyeng.ru/schedule
 EMAIL=your_email@example.com
 PASSWORD=your_password
 API_TOKEN=your_api_token
-
 ```
 
 `EMAIL` и `PASSWORD` нужны для UI-тестов. `API_TOKEN` нужен для API-тестов:
@@ -122,32 +107,10 @@ flake8
 
 ## Структура проекта
 
-EMAIL и PASSWORD нужны для UI-тестов. API_TOKEN нужен для API-тестов:
-он передается и в cookie token_global, и в заголовке Authorization.
-
-Запуск тестов
-Запустить все тесты:
-
-pytest
-Запустить только API-тесты:
-
-pytest -m api
-Запустить только UI-тесты:
-
-pytest -m ui
-Запустить тесты с сохранением результатов Allure:
-
-pytest --alluredir=allure-results
-Сформировать и открыть Allure-отчет:
-
-allure serve allure-results
-Проверка стиля
-Запуск flake8:
-
-flake8
-Структура проекта
+```text
 config/             настройки и загрузка .env
 pages/              Page Object Model для UI-тестов
 tests/test_api.py   API-тесты личных событий
 tests/test_ui.py    UI-тесты личных событий
 utils/api_client.py клиент для API-запросов
+```
